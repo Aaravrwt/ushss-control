@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { BookOpen, Search, CheckCircle2, AlertTriangle, ArrowUpDown } from 'lucide-react';
+import { BookOpen, Search } from 'lucide-react';
+import { Card, Button, Select, TableSkeleton, StatusBadge } from '@/components/ui/design-system';
 
 export default function SubjectAttendancePage() {
   const [subjects, setSubjects] = useState<string[]>([]);
@@ -10,7 +11,6 @@ export default function SubjectAttendancePage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  // Fetch subjects catalogue
   useEffect(() => {
     async function loadSubjects() {
       try {
@@ -29,7 +29,6 @@ export default function SubjectAttendancePage() {
     loadSubjects();
   }, []);
 
-  // Fetch subject matrix
   const fetchSubjectData = async () => {
     if (!selectedSubject) return;
     setLoading(true);
@@ -56,120 +55,114 @@ export default function SubjectAttendancePage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white tracking-wide">Subject Attendance Matrix</h1>
-        <p className="text-sm text-slate-400 mt-1">
-          Review cohort attendance distribution by course subject, inspect sessions conducted, and monitor compliance.
+      {/* Header */}
+      <div className="pb-4 border-b border-[#21262d]">
+        <h1 className="text-xl font-semibold tracking-tight text-zinc-100">
+          Subject Attendance Matrix
+        </h1>
+        <p className="text-xs text-zinc-400 mt-1">
+          Cohort-wide attendance distribution by course subject and session completion logs.
         </p>
       </div>
 
-      {/* Subject Filter Bar */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 rounded-2xl bg-slate-900/80 border border-slate-800">
+      {/* Subject Filter Toolbar */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 p-3.5 rounded-xl bg-[#11141a] border border-[#21262d]">
         <div className="md:col-span-2">
-          <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+          <label className="block text-[11px] font-medium text-zinc-400 uppercase tracking-wider mb-1.5">
             Select Course Subject
           </label>
-          <select
+          <Select
             value={selectedSubject}
             onChange={(e) => setSelectedSubject(e.target.value)}
-            className="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="text-xs"
           >
             {subjects.map((sub) => (
               <option key={sub} value={sub}>
                 {sub}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+          <label className="block text-[11px] font-medium text-zinc-400 uppercase tracking-wider mb-1.5">
             Filter Semester
           </label>
-          <select
+          <Select
             value={semester}
             onChange={(e) => setSemester(e.target.value)}
-            className="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="text-xs"
           >
             <option value="">All Semesters</option>
             <option value="1">Semester 1</option>
             <option value="2">Semester 2</option>
             <option value="3">Semester 3</option>
             <option value="4">Semester 4</option>
-          </select>
+          </Select>
         </div>
       </div>
 
       {/* Subject Overview KPI Banner */}
       {data && (
-        <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <Card className="bg-[#11141a] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <span className="text-xs uppercase font-semibold text-blue-400 tracking-wider">
-              Subject Overview
+            <span className="text-[11px] font-mono uppercase tracking-wider text-blue-400 block mb-0.5">
+              Subject Cohort Overview
             </span>
-            <h2 className="text-xl font-bold text-white mt-1">{data.subject}</h2>
-            <p className="text-xs text-slate-400 mt-1">
-              Total Lectures Held: <strong className="text-white">{data.totalSessions}</strong> • Enrolled Students Recorded: <strong className="text-white">{data.students?.length || 0}</strong>
+            <h2 className="text-base font-semibold text-zinc-100">{data.subject}</h2>
+            <p className="text-xs text-zinc-400 mt-1">
+              Lectures Conducted: <span className="font-mono text-zinc-200">{data.totalSessions}</span> • Enrolled Students Recorded: <span className="font-mono text-zinc-200">{data.students?.length || 0}</span>
             </p>
           </div>
-        </div>
+        </Card>
       )}
 
       {/* Cohort Subject Roster Table */}
-      <div className="rounded-2xl bg-slate-900/80 border border-slate-800 overflow-hidden shadow-xl">
+      <div className="rounded-xl bg-[#11141a] border border-[#21262d] overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-300">
-            <thead className="bg-slate-950/60 text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800">
+          <table className="w-full text-left text-xs text-zinc-300">
+            <thead className="bg-[#161b22] text-[11px] font-semibold text-zinc-400 uppercase tracking-wider border-b border-[#21262d]">
               <tr>
-                <th className="px-6 py-4">Student</th>
-                <th className="px-6 py-4">Enrollment No</th>
-                <th className="px-6 py-4 text-center">Classes Attended</th>
-                <th className="px-6 py-4 text-center">Classes Missed</th>
-                <th className="px-6 py-4 text-right">Attendance %</th>
-                <th className="px-6 py-4 text-right">Status</th>
+                <th className="px-5 py-3">Student Name</th>
+                <th className="px-5 py-3">Enrollment No</th>
+                <th className="px-5 py-3 text-center">Classes Attended</th>
+                <th className="px-5 py-3 text-center">Classes Missed</th>
+                <th className="px-5 py-3 text-right">Attendance %</th>
+                <th className="px-5 py-3 text-right">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/80">
+            <tbody className="divide-y divide-[#21262d]">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-10 text-slate-500">
-                    Loading subject records...
+                  <td colSpan={6}>
+                    <TableSkeleton rows={5} cols={6} />
                   </td>
                 </tr>
               ) : !data || data.students?.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-10 text-slate-500">
+                  <td colSpan={6} className="text-center py-10 text-zinc-500">
                     No attendance records found for this subject.
                   </td>
                 </tr>
               ) : (
                 data.students.map((s: any) => (
-                  <tr key={s.student_id} className="hover:bg-slate-800/40 transition-colors">
-                    <td className="px-6 py-4 font-semibold text-white">
-                      {s.student_name}
-                    </td>
-                    <td className="px-6 py-4 font-mono text-xs text-slate-400">
-                      {s.enrollment_no}
-                    </td>
-                    <td className="px-6 py-4 text-center font-medium text-emerald-400">
+                  <tr key={s.student_id} className="hover:bg-[#161b22]/50 transition-colors">
+                    <td className="px-5 py-3 font-medium text-zinc-200">{s.student_name}</td>
+                    <td className="px-5 py-3 font-mono text-zinc-400">{s.enrollment_no}</td>
+                    <td className="px-5 py-3 text-center font-mono font-medium text-emerald-400">
                       {s.attended} / {s.total}
                     </td>
-                    <td className="px-6 py-4 text-center font-medium text-rose-400">
+                    <td className="px-5 py-3 text-center font-mono font-medium text-rose-400">
                       {s.missed}
                     </td>
-                    <td className="px-6 py-4 text-right font-extrabold text-white">
+                    <td className="px-5 py-3 text-right font-mono font-bold text-zinc-100">
                       {s.percentage}%
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold uppercase ${
-                          s.percentage >= 75
-                            ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
-                            : 'bg-rose-950 text-rose-400 border border-rose-800'
-                        }`}
-                      >
-                        {s.percentage >= 75 ? 'Qualified' : 'Defalcated'}
-                      </span>
+                    <td className="px-5 py-3 text-right">
+                      <StatusBadge
+                        status={s.percentage >= 75 ? 'qualified' : 'defalcated'}
+                        size="sm"
+                      />
                     </td>
                   </tr>
                 ))

@@ -12,6 +12,7 @@ import {
   FileSpreadsheet,
   History,
   Settings,
+  Database,
   LogOut,
 } from 'lucide-react';
 
@@ -20,17 +21,24 @@ interface SidebarProps {
   userRole?: string;
 }
 
-export default function Sidebar({ userFullName = 'Dean of USHSS', userRole = 'Executive Administrator' }: SidebarProps) {
+export default function Sidebar({
+  userFullName = 'Dean of USHSS',
+  userRole = 'Executive Administrator',
+}: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
-  const navItems = [
+  const attendanceNav = [
     { name: 'Overview', href: '/', icon: LayoutDashboard },
     { name: 'Student Search', href: '/students', icon: Users },
     { name: 'Individual Attendance', href: '/individual-attendance', icon: UserCheck },
     { name: 'Subject Attendance', href: '/subject-attendance', icon: BookOpen },
     { name: 'Class Attendance', href: '/class-attendance', icon: CalendarDays },
     { name: 'Overall Attendance', href: '/overall-attendance', icon: FileSpreadsheet },
+  ];
+
+  const systemNav = [
+    { name: 'Database Explorer', href: '/database-explorer', icon: Database },
     { name: 'Activity History', href: '/activity-history', icon: History },
     { name: 'Security Settings', href: '/settings', icon: Settings },
   ];
@@ -46,54 +54,95 @@ export default function Sidebar({ userFullName = 'Dean of USHSS', userRole = 'Ex
   };
 
   return (
-    <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col flex-shrink-0 min-h-screen">
+    <aside className="w-64 bg-[#0d1117] border-r border-[#21262d] flex flex-col flex-shrink-0 min-h-screen select-none">
       {/* Brand Header */}
-      <div className="p-6 border-b border-slate-800 flex items-center space-x-3">
-        <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
-          <Shield className="w-5 h-5" />
+      <div className="h-14 px-5 border-b border-[#21262d] flex items-center justify-between">
+        <div className="flex items-center space-x-2.5">
+          <div className="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+            <Shield className="w-4 h-4" />
+          </div>
+          <div className="leading-tight">
+            <span className="text-xs font-semibold text-zinc-100 tracking-tight block">
+              USHSS Control
+            </span>
+            <span className="text-[10px] text-zinc-500 font-mono tracking-wider uppercase block">
+              Dean Office
+            </span>
+          </div>
         </div>
-        <div>
-          <h2 className="text-sm font-bold text-white tracking-wide">USHSS CONTROL</h2>
-          <p className="text-xs text-blue-400 font-medium">Dean Office Portal</p>
-        </div>
+        <span className="w-2 h-2 rounded-full bg-emerald-500 ring-4 ring-emerald-500/20" title="Connected to Supabase" />
       </div>
 
-      {/* Navigation Items */}
-      <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
-        <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider px-3 mb-2">
-          Attendance Modules
+      {/* Navigation Sections */}
+      <nav className="flex-1 px-3 py-4 space-y-6 overflow-y-auto">
+        {/* Attendance Group */}
+        <div>
+          <div className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider px-2.5 mb-2">
+            Attendance Administration
+          </div>
+          <div className="space-y-0.5">
+            {attendanceNav.map((item) => {
+              const isActive =
+                pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all duration-150 ${
+                    isActive
+                      ? 'bg-[#1f242c] text-blue-400 border border-[#30363d] font-semibold'
+                      : 'text-zinc-400 hover:text-zinc-200 hover:bg-[#161b22]'
+                  }`}
+                >
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-blue-400' : 'text-zinc-500'}`} />
+                  <span>{item.name}</span>
+                </Link>
+              );
+            })}
+          </div>
         </div>
-        {navItems.map((item) => {
-          const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                isActive
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-              }`}
-            >
-              <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-              <span>{item.name}</span>
-            </Link>
-          );
-        })}
+
+        {/* System Group */}
+        <div>
+          <div className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider px-2.5 mb-2">
+            System & Records
+          </div>
+          <div className="space-y-0.5">
+            {systemNav.map((item) => {
+              const isActive =
+                pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all duration-150 ${
+                    isActive
+                      ? 'bg-[#1f242c] text-blue-400 border border-[#30363d] font-semibold'
+                      : 'text-zinc-400 hover:text-zinc-200 hover:bg-[#161b22]'
+                  }`}
+                >
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-blue-400' : 'text-zinc-500'}`} />
+                  <span>{item.name}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
       </nav>
 
-      {/* User Info & Logout Footer */}
-      <div className="p-4 border-t border-slate-800 bg-slate-900/50">
-        <div className="flex items-center justify-between mb-3 px-2">
+      {/* Admin User & Sign Out */}
+      <div className="p-3 border-t border-[#21262d] bg-[#0d1117]">
+        <div className="flex items-center justify-between p-2 rounded-lg bg-[#161b22] border border-[#21262d] mb-2">
           <div className="truncate pr-2">
-            <p className="text-sm font-semibold text-white truncate">{userFullName}</p>
-            <p className="text-xs text-slate-400 truncate">{userRole}</p>
+            <p className="text-xs font-medium text-zinc-200 truncate">{userFullName}</p>
+            <p className="text-[10px] text-zinc-500 truncate capitalize">{userRole}</p>
           </div>
         </div>
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center space-x-2 py-2 px-3 rounded-lg bg-slate-800/80 hover:bg-red-950/40 text-slate-400 hover:text-red-400 border border-slate-700/60 hover:border-red-800/50 text-xs font-medium transition-all"
+          className="w-full flex items-center justify-center space-x-2 py-1.5 px-3 rounded-md bg-transparent hover:bg-rose-950/30 text-zinc-400 hover:text-rose-400 border border-transparent hover:border-rose-900/50 text-xs font-medium transition-all duration-150"
         >
           <LogOut className="w-3.5 h-3.5" />
           <span>Sign Out</span>
